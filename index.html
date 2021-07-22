@@ -28,7 +28,7 @@
           <h2 class="h4">Búsqueda</h2>
         </div>
         <div class="cell small-4">
-          <input type="search" placeholder="Ingresá tu búsqueda" id="search-input">
+          <input type="search" placeholder="Ingresá tu búsqueda" id="search-input"  onkeyup="handlerFetch()" />
         </div>
         <div class="cell small-3 text-right">
           <input type="radio" name="cards" value="comics" id="show-comics" required checked><label for="show-comics">Comics</label>
@@ -36,7 +36,7 @@
         </div>
         <div class="cell small-3">
           <label class="cell">Orden
-            <select id="order-input">
+            <select id="order-input" onchange="handlerFetch()">
               <option value="title">A-Z</option>
               <option value="-title">Z-A</option>
               <option value="-focDate">Más nuevos</option>
@@ -44,15 +44,12 @@
             </select>
           </label>
         </div>
-        <div class="cell small-2 text-center">
-          <button type="button" onclick="handlerButtonSubmit()" class="button">Buscar</button>
-        </div>
       </div>
     </div>
 
-    <div class="grid-x grid-padding-x align-center ">
+    <div class="grid-x grid-padding-x align-center" id="results-header-container">
       <h3 class="h5 cell small-8 header ">Resultados</h3>
-      <p class="cell small-8 header">1111 coincidencias</p>
+      <p class="cell small-8 header" id="results-amount">0 coincidencias</p>
     </div>
 
     <div class="grid-x grid-padding-x large-up-5" id="cards-container">

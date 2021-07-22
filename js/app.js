@@ -63,18 +63,22 @@ const getURL = (offset) => {
 // FUNCION QUE TRAE LOS CHARACTERS SEGUN EL OFFSET QUE LE PASEMOS, CREA LAS CARDS Y LAS IMPRIME EN EL CONTAINER
 const fetchAndPrintCharacters = async (offset) => {
   const url = getURL(offset);
-  let arr = await getData(url);
-  let cards = createCharactersCards(arr);
+  const data = await getData(url);
+  showResultsAmount(url);
+  const cards = createCharactersCards(data);
   cleanContainer();
+  toggleResultsHeader('flex');
   printAll([cards]);
 };
 
 // FUNCION QUE TRAE LOS COMICS SEGUN EL OFFSET QUE LE PASEMOS, CREA LAS CARDS Y LAS IMPRIME EN EL CONTAINER
 const fetchAndPrintComics = async (offset) => {
-  const url = getURL();
+  const url = getURL(offset);
   const data = await getData(url);
+  showResultsAmount(url);
   const cards = createComicsCards(data);
   cleanContainer();
+  toggleResultsHeader('flex');
   printAll([cards]);
 };
 
@@ -135,6 +139,7 @@ const printOneCharacter = (arr) => {
 // FUNCION QUE TRAE EL CHARACTER SEGUN EL ID QUE LE PASEMOS, CREA LA CARD Y LA IMPRIME EN EL CONTAINER
 const clickOnCharacter = async (id) => {
   const info = await getData(`${urlBase}${urlCharacters}/${id}${urlKeys}`);
+  toggleResultsHeader('none');
   printOneCharacter(info);
 };
 
@@ -226,6 +231,7 @@ const clickOnComic = async (id) => {
   const urlComicId = `/v1/public/comics/${id}`;
   const data = await getData(urlBase + urlComicId + urlKeys);
   const card = await createComicCard(data);
+  toggleResultsHeader('none');
   cleanContainer();
   printAll([card]);
 };
@@ -237,7 +243,21 @@ const clickOnComic = async (id) => {
 // }
 
 //Función que toma el fetch de la api y retorna el total de comics existentes
-const getTotalComics = (resp) => resp.data.total;
+const getTotalComics = async (url) => 
+  await fetch(url)
+  .then((resp) => resp.json())
+  .then((resp) => resp.data.total)
+  .catch((err) => console.error(err));
+  
+
+const showResultsAmount = async (url) =>{
+  const total = await getTotalComics(url);
+  getId('results-amount').innerText = `${total} conincidencias`
+}
+
+const toggleResultsHeader = (display) =>{
+  getId('results-header-container').style.display = display;
+}
 
 //Funcion NO TESTEADA que chequea cuantas páginas deberían existir de acuerdo a la cantidad total de comics y cuantos comics quedan para la ultima pagina.
 // const checkAmountPages = (total) => {
@@ -277,9 +297,6 @@ getId("next-page").addEventListener("click", () => {
   return offset;
 });
 
-// CAMBIAR ENTRE CHARACTERS Y COMICS -- TEMPORAL, DESPUES LO TENEMOS QUE ADAPTAR AL BOTON
-
-
 // EVENTO APLICADO AL RADIO BUTTON DE SHOW COMICS. LIMPIA EL CONTENEDOR E IMPRIME LOS COMICS SEGUN EL OFFSET
 getId("show-comics").addEventListener("change", (e) => {
   if (e.target.checked === true) {
@@ -318,10 +335,10 @@ getId("order-input").addEventListener("change", (e) => {
   selectedCards === 'comics' ? fetchAndPrintComics(offset) : fetchAndPrintCharacters(offset)
 });
 
-const handlerButtonSubmit = () =>{
+// Handler de evento que se le pasa a los inputs para que haga el fetch segun las cards seleccionadas sean comics o characters
+const handlerFetch = () =>{
   selectedCards === 'comics' ? fetchAndPrintComics(offset) : fetchAndPrintCharacters(offset)
 }
-
 
 // EVENTO ON LOAD QUE CARGA LOS COMICS COMO OPCION DEFAULT EN LA PAGINA
 window.addEventListener("load", () => {
